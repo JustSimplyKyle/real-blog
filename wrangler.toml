@@ -1,0 +1,7 @@
+compatibility_date = "2025-07-07"
+
+# The name of the Cloudflare Pages service.
+name = "real-blog"
+
+# The bundle location for the Dioxus project, relative to this file.
+pages_build_output_dir = "target/dx/real-blog/release/web/public"
