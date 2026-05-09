@@ -25,6 +25,8 @@ enum Route {
     Home {},
     #[route("/blog")]
     Blog {},
+    #[route("/friends")] // <-- Add this
+    Friends {},
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -39,6 +41,7 @@ fn NavBar() -> Element {
     let route: Route = use_route();
     let is_home = matches!(route, Route::Home {});
     let is_blog = matches!(route, Route::Blog {});
+    let is_friends = matches!(route, Route::Friends {});
 
     let home_class = if is_home {
         format!("{} {}", Styles::nav_link, Styles::nav_link_active)
@@ -46,6 +49,12 @@ fn NavBar() -> Element {
         Styles::nav_link.to_string()
     };
     let blog_class = if is_blog {
+        format!("{} {}", Styles::nav_link, Styles::nav_link_active)
+    } else {
+        Styles::nav_link.to_string()
+    };
+
+    let friends_class = if is_friends {
         format!("{} {}", Styles::nav_link, Styles::nav_link_active)
     } else {
         Styles::nav_link.to_string()
@@ -62,10 +71,75 @@ fn NavBar() -> Element {
                 class: Styles::nav_links,
                 Link { to: Route::Home {}, class: "{home_class}", "home" }
                 Link { to: Route::Blog {}, class: "{blog_class}", "blog" }
+                Link { to: Route::Friends {}, class: "{friends_class}", "connections" }
             }
         }
         div {
             Outlet::<Route> {}
+        }
+    }
+}
+
+#[component]
+fn Friends() -> Element {
+    #[css_module("/assets/layout.css")]
+    struct Styles;
+
+    rsx! {
+        div { class: Styles::page_container_padded,
+            div { class: Styles::blog_hero,
+                div { class: Styles::blog_hero_inner,
+                    div { class: Styles::eyebrow, "connections" }
+                    h1 { class: Styles::blog_title, "connecitons" }
+                    div { class: Styles::blog_subtitle, "// cool people i know" }
+                }
+            }
+
+            // Reusing your project grid for a nice 2-column layout!
+            div { class: Styles::projects_grid,
+                FriendCard {
+                    name: "淳",
+                    url: "https://chuen666666.github.io/",
+                    desc: "群除我佬，我是肺霧",
+                    avatar: "https://chuen666666.github.io/img/avatar.jpg"
+                }
+                // Just add more FriendCard blocks here when you get more links!
+            }
+        }
+    }
+}
+
+#[component]
+fn FriendCard(
+    name: &'static str,
+    url: &'static str,
+    desc: &'static str,
+    avatar: &'static str,
+) -> Element {
+    #[css_module("/assets/components.css")]
+    struct Styles;
+
+    rsx! {
+        a {
+            href: "{url}",
+            target: "_blank",
+            class: Styles::card,
+            // Override the layout to be a flex row instead of column
+            style: "flex-direction: row; align-items: center; gap: 1.2rem; --card-accent: var(--accent2); --card-border: var(--accent2-mid);",
+
+            // Avatar
+            img {
+                src: "{avatar}",
+                alt: "{name} avatar",
+                style: "width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent2-light); flex-shrink: 0;"
+            }
+
+            // Text Content
+            div {
+                style: "display: flex; flex-direction: column; gap: 0.25rem;",
+                h3 { class: Styles::card_title, style: "margin: 0;", "{name}" }
+                div { class: Styles::card_body, style: "margin: 0; line-height: 1.5;", "{desc}" }
+            }
         }
     }
 }
