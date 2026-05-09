@@ -1,0 +1,109 @@
+/* ══════════════════════════════════════════
+   TagCard  —  pill-shaped label / link
+   ══════════════════════════════════════════ */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  border: 1.5px solid var(--tag-border);
+  color: var(--tag-text);
+  background: var(--tag-bg);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.tag:hover { opacity: 0.72; }
+
+/* ══════════════════════════════════════════
+   Badge  —  stat card with top accent stripe
+   ══════════════════════════════════════════ */
+.badge {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--badge-accent);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.badge:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.badge-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.badge-value {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--badge-accent);
+}
+
+/* ══════════════════════════════════════════
+   Skill  —  name + level tag row
+   ══════════════════════════════════════════ */
+.skill-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+.skill-row:last-child { border-bottom: none; }
+
+/* ══════════════════════════════════════════
+   ProjectCard  —  left-accented content card
+   ══════════════════════════════════════════ */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--card-border);
+  border-left: 4px solid var(--card-accent);
+  border-radius: 10px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  height: 100%;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--card-accent);
+  margin: 0;
+}
+
+.card-body {
+  font-size: 0.88rem;
+  line-height: 1.75;
+  flex: 1;
+  color: var(--text-muted);
+}
+
+.card-tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: auto;
+}

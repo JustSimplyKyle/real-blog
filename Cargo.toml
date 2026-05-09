@@ -1,0 +1,17 @@
+[package]
+name = "real-blog"
+version = "0.1.0"
+authors = ["kyle <kyle@nixos-desktop>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dioxus = { version = "0.7.1", features = ["router"] }
+dioxus_style = "0.5.3"
+
+[features]
+default = ["web"]
+web = ["dioxus/web"]
+desktop = ["dioxus/desktop"]
+mobile = ["dioxus/mobile"]

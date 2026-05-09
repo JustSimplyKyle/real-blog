@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif+TC:wght@400;500;700;900&display=swap');
+
+/* ── Design Tokens ── */
+:root {
+  --bg: #f5f1eb;
+  --bg-surface: #ffffff;
+  --bg-light: #ede9e2;
+  --bg-hero: #111418;
+
+  --text: #1c1917;
+  --text-muted: #6b6860;
+  --text-on-dark: #f0ece4;
+
+  --accent: #c94f2a;
+  --accent-light: rgba(201, 79, 42, 0.10);
+  --accent-mid: rgba(201, 79, 42, 0.30);
+
+  --accent2: #0d7c7c;
+  --accent2-light: rgba(13, 124, 124, 0.10);
+  --accent2-mid: rgba(13, 124, 124, 0.30);
+
+  --accent3: #b45309;
+  --accent3-light: rgba(180, 83, 9, 0.10);
+  --accent3-mid: rgba(180, 83, 9, 0.30);
+
+  --divider: #ddd8cf;
+  --border: #e5e0d7;
+
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.09);
+  --shadow-lg: 0 8px 36px rgba(0, 0, 0, 0.13);
+
+  --font-display: 'DM Serif Display', 'Noto Serif TC', Georgia, serif;
+  --font-body: 'Noto Serif TC', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+}
+
+/* ── Reset ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 20px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: var(--bg);
+  margin: 0;
+  padding: 2.5rem 1.5rem 5rem;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  color: var(--text);
+  margin: 0;
+}
+
+p {
+  margin: 0.5rem 0;
+}
+
+ul {
+  margin: 0;
+  padding-left: 1.4rem;
+}
+
+li {
+  margin: 0.25rem 0;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  opacity: 0.75;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
