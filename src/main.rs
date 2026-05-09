@@ -163,6 +163,9 @@ fn Home() -> Element {
             div { class: Styles::section_title, "about me" }
             About {}
 
+            div { class: Styles::section_title, "games i play" }
+            Games {}
+
             div { class: Styles::section_title, "things i love" }
             LoveGrid {}
 
@@ -442,6 +445,40 @@ fn Blog() -> Element {
                 "nothing here yet. "
                 strong { "posts are going to be written in Typst" }
                 " and be rendered using typst.ts"
+            }
+        }
+    }
+}
+
+#[component]
+fn Games() -> Element {
+    #[css_module("/assets/layout.css")]
+    struct Styles;
+
+    rsx! {
+        div { class: Styles::about_block,
+            p { class: Styles::about_para,
+                "i spend an unreasonable amount of time playing rhythm games. my main game is "
+                strong { "maimai" } " ("
+                a { href: "https://www.tomomai.lol/profile/simplykyle/intl", target: "_blank", "see my profile" }
+                "), but i also play "
+                em { "in FALSUS" } ", " em { "Phigros" } ", and " em { "Arcaea" }
+                " (though i'm definitely still a noob at that last one)."
+            }
+            p { class: Styles::about_para,
+                "when i'm not hitting buttons to a beat, i'm usually grinding "
+                strong { "Celeste" }
+                " (currently suffering through the Strawberry Jam mod on Expert difficulty), loving that rogue like of "
+                strong { "Slay the Spire 2" }
+                " (got to ascension 10 barring regent), or occasionally tetrising in "
+                strong { "TETR.IO" } " ("
+                a { href: "https://ch.tetr.io/u/ultimatekyle", target: "_blank", "stats" }
+                " — though i'm a bit less active there these days)."
+            }
+            p { class: Styles::about_para,
+                "i generally don't play big AAA titles at all, but "
+                strong { "NieR:Automata" }
+                " is the one major exception i've made. the soundtrack and story just hit completely different."
             }
         }
     }
