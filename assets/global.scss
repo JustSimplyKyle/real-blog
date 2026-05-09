@@ -1,56 +1,34 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif+TC:wght@400;500;700;900&display=swap');
 
-/* ============================================================
-   DESIGN TOKENS
-   ============================================================ */
+$mobile: 768px;
+
 :root {
-  /* Backgrounds */
   --bg: #f5f1eb;
-  /* warm paper */
   --bg-surface: #ffffff;
   --bg-light: #ede9e2;
   --bg-hero: #111418;
-  /* near-black for header */
-
-  /* Text */
   --text: #1c1917;
   --text-muted: #6b6860;
   --text-on-dark: #f0ece4;
-
-  /* Accents — Rust-lang orange family */
   --accent: #c94f2a;
-  /* Rust orange */
   --accent-light: rgba(201, 79, 42, 0.10);
   --accent-mid: rgba(201, 79, 42, 0.30);
-
-  /* Accent 2 — teal */
   --accent2: #0d7c7c;
   --accent2-light: rgba(13, 124, 124, 0.10);
   --accent2-mid: rgba(13, 124, 124, 0.30);
-
-  /* Accent 3 — amber (learning/in-progress) */
   --accent3: #b45309;
   --accent3-light: rgba(180, 83, 9, 0.10);
   --accent3-mid: rgba(180, 83, 9, 0.30);
-
-  /* Structural */
   --divider: #ddd8cf;
   --border: #e5e0d7;
-
-  /* Shadows */
   --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.09);
   --shadow-lg: 0 8px 36px rgba(0, 0, 0, 0.13);
-
-  /* Typography */
   --font-display: 'DM Serif Display', 'Noto Serif TC', Georgia, serif;
   --font-body: 'Noto Serif TC', Georgia, serif;
   --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
 }
 
-/* ============================================================
-   RESET & BASE
-   ============================================================ */
 *,
 *::before,
 *::after {
@@ -61,15 +39,23 @@ html {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: 20px;
   line-height: 1.75;
   -webkit-font-smoothing: antialiased;
+
+  @media (max-width: $mobile) {
+    font-size: 16px; // Shrink base font on mobile
+  }
 }
 
 body {
   background: var(--bg);
   margin: 0;
   padding: 2.5rem 1.5rem 5rem;
+
+  @media (max-width: $mobile) {
+    padding: 1rem 1rem 3rem;
+  }
 }
 
 h1,
@@ -81,6 +67,7 @@ h4 {
   letter-spacing: -0.015em;
   line-height: 1.2;
   color: var(--text);
+  margin: 0;
 }
 
 p {
@@ -96,33 +83,16 @@ li {
   margin: 0.25rem 0;
 }
 
-a {
-  color: var(--accent);
-  text-decoration: none;
-  transition: opacity 0.15s ease;
-
-  &:hover {
-    opacity: 0.75;
-  }
-}
-
 img {
   display: block;
   max-width: 100%;
 }
 
-/* ============================================================
-   SCROLLBAR (subtle)
-   ============================================================ */
-::-webkit-scrollbar {
-  width: 5px;
-}
+a {
+  color: var(--accent);
+  text-decoration: none;
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--divider);
-  border-radius: 9999px;
+  &:hover {
+    opacity: 0.75;
+  }
 }

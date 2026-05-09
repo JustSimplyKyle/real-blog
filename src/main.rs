@@ -123,27 +123,26 @@ fn FriendCard(
         a {
             href: "{url}",
             target: "_blank",
-            class: Styles::card,
-            // Override the layout to be a flex row instead of column
-            style: "flex-direction: row; align-items: center; gap: 1.2rem; --card-accent: var(--accent2); --card-border: var(--accent2-mid);",
+            // Combine the base "card" and our new "friend" modifier using Dioxus styles mapping
+            class: "{Styles::card} {Styles::friend}",
+            style: "--card-accent: var(--accent2); --card-border: var(--accent2-mid);",
 
             // Avatar
             img {
                 src: "{avatar}",
                 alt: "{name} avatar",
-                style: "width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent2-light); flex-shrink: 0;"
+                class: Styles::avatar,
             }
 
             // Text Content
             div {
-                style: "display: flex; flex-direction: column; gap: 0.25rem;",
-                h3 { class: Styles::card_title, style: "margin: 0;", "{name}" }
-                div { class: Styles::card_body, style: "margin: 0; line-height: 1.5;", "{desc}" }
+                class: Styles::info,
+                h3 { class: Styles::card_title, "{name}" }
+                div { class: Styles::card_body, "{desc}" }
             }
         }
     }
 }
-
 // ─────────────────────────────────────────────────────────────
 //  Atomic Components
 // ─────────────────────────────────────────────────────────────
