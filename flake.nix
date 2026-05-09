@@ -123,6 +123,8 @@
             nativeBuildInputs = [
               # Add shell dependencies here
               rustToolchain
+              pkgs.binaryen
+              pkgs.dioxus-cli
             ];
             shellHook = ''
               # For rust-analyzer 'hover' tooltips to work.

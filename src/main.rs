@@ -354,6 +354,11 @@ fn Projects() -> Element {
                         TagCard { text: "async", color: Some("accent2"), link: None }
                         TagCard { text: "CLI",   color: Some("accent2"), link: None }
                         TagCard { text: "Rust",  color: None,            link: None }
+                        TagCard {
+                            text: "GitHub",
+                            color: Some("gray"),
+                            link: Some("https://github.com/JustSimplyKyle/catbox-cli")
+                        }
                     },
                     "A proper command-line uploader for catbox.moe. \
                      Concurrent uploads, live progress bars, clean error handling."
@@ -383,6 +388,12 @@ fn Projects() -> Element {
                         TagCard { text: "reverse engineering", color: Some("accent2"), link: None }
                         TagCard { text: "USB",                 color: Some("accent2"), link: None }
                         TagCard { text: "Rust",                color: None,            link: None }
+                        TagCard {
+                            text: "GitHub",
+                            color: Some("gray"),
+                            link: Some("https://github.com/JustSimplyKyle/infi75-custom")
+                        }
+
                     },
                     "The vendor had no Linux driver. So I captured USB packets in \
                      Wireshark, reverse-engineered the lighting protocol, \
@@ -395,6 +406,11 @@ fn Projects() -> Element {
                         TagCard { text: "QML",            color: Some("accent2"), link: None }
                         TagCard { text: "hook injection", color: Some("accent2"), link: None }
                         TagCard { text: "Rust",           color: None,            link: None }
+                        TagCard {
+                            text: "GitHub",
+                            color: Some("gray"),
+                            link: Some("https://github.com/JustSimplyKyle/rmpp-appload")
+                        }
                     },
                     "Custom frontend injected into the reMarkable Paper Pro via \
                      an xovi hook."
