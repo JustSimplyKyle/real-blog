@@ -1,5 +1,3 @@
-use std::convert::identity;
-
 use cosmic::iced::alignment::Vertical;
 use cosmic::iced::{self, Alignment, Font, Length, Size, Task};
 use cosmic::{Apply, Core, Element, app, executor, theme, widget};
@@ -10,12 +8,11 @@ const TETRIO: &str = "https://ch.tetr.io/u/ultimatekyle";
 const HUNINN: Font = Font::with_name("jf-openhuninn-2.1");
 const HUNINN_ASSET: manganis::Asset = manganis::asset!("/assets/fonts/jf-openhuninn-2.1.ttf");
 
-fn main() -> cosmic::iced::Result {
-    #[cfg(target_arch = "wasm32")]
-    {
-        console_log::init().expect("initialize browser logging");
-        std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    }
+fn launch(font: Vec<u8>) -> cosmic::iced::Result {
+    cosmic::iced::advanced::graphics::text::font_system()
+        .write()
+        .expect("lock font system")
+        .load_font(font.into());
 
     app::run::<BlogApp>(
         app::Settings::default()
@@ -23,6 +20,31 @@ fn main() -> cosmic::iced::Result {
             .client_decorations(false),
         (),
     )
+}
+
+fn main() {
+    #[cfg(target_arch = "wasm32")]
+    {
+        console_log::init().expect("initialize browser logging");
+        std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+
+        wasm_bindgen_futures::spawn_local(async {
+            let response = gloo_net::http::Request::get(&HUNINN_ASSET.to_string())
+                .send()
+                .await
+                .expect("fetch application font");
+            let font = response
+                .binary()
+                .await
+                .expect("read application font response");
+
+            launch(font).expect("launch application");
+        });
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    launch(std::fs::read(HUNINN_ASSET.resolve()).expect("read application font"))
+        .expect("launch application");
 }
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
@@ -70,28 +92,6 @@ impl cosmic::Application for BlogApp {
             .insert(|button| button.text("connections").data(Page::Connections))
             .build();
 
-        #[cfg(target_arch = "wasm32")]
-        let fetch_huninn = async {
-            let response = gloo_net::http::Request::get(&HUNINN_ASSET.to_string())
-                .send()
-                .await
-                .map_err(|error| error.to_string())?;
-
-            response.binary().await.map_err(|error| error.to_string())
-        };
-
-        #[cfg(not(target_arch = "wasm32"))]
-        let fetch_huninn =
-            async { std::fs::read(HUNINN_ASSET.resolve()).map_err(|error| error.to_string()) };
-
-        let load_huninn = Task::perform(fetch_huninn, identity).then(|result| match result {
-            Ok(bytes) => cosmic::iced::font::load(bytes).discard(),
-            Err(error) => {
-                eprintln!("failed to load {HUNINN_ASSET}: {error}");
-                Task::none()
-            }
-        });
-
         (
             Self {
                 core,
@@ -99,7 +99,7 @@ impl cosmic::Application for BlogApp {
                 navigation,
                 compact: false,
             },
-            load_huninn,
+            Task::none(),
         )
     }
 
