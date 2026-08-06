@@ -125,6 +125,7 @@
               rustToolchain
               pkgs.binaryen
               pkgs.dioxus-cli
+              pkgs.just
             ];
             shellHook = ''
               # For rust-analyzer 'hover' tooltips to work.

@@ -1,0 +1,4 @@
+[submodule "vendor/libcosmic"]
+	path = vendor/libcosmic
+	url = https://github.com/JustSimplyKyle/libcosmic.git
+	branch = cosmic-web

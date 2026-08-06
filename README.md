@@ -1,51 +1,48 @@
-# Development
+# real-blog
 
-Your new bare-bones project includes minimal organization with a single `main.rs` file and a few assets.
+Kyle's self-introduction rendered by libcosmic + iced on WebAssembly. Dioxus is
+deliberately retained only for its `dx` development server and asset bundling;
+the UI, renderer, and browser event loop are owned by iced.
 
-```
-project/
-├─ assets/ # Any assets that are used by the app should be placed here
-├─ src/
-│  ├─ main.rs # main.rs is the entry point to your application and currently contains all components for the app
-├─ Cargo.toml # The Cargo.toml file defines the dependencies and feature flags for your project
-```
+The web-compatible libcosmic/iced stack is a recursive git submodule at
+`vendor/libcosmic`. Its upstream revisions and compatibility patches are
+documented in `vendor/libcosmic/WEB_SUPPORT.md`.
 
-### Automatic Tailwind (Dioxus 0.7+)
+Traditional Chinese glyphs use justfont's `jf-openhuninn` 2.1. The release font
+and its license are stored in `assets/fonts` and loaded into iced at startup.
 
-As of Dioxus 0.7, there no longer is a need to manually install tailwind. Simply `dx serve` and you're good to go!
+`vendor/atomicwrites` preserves libcosmic's native config API while returning a
+clear unsupported error for browser filesystem writes. Browsers have no COSMIC
+config directory, so the vendored config fallback keeps the default theme.
 
-Automatic tailwind is supported by checking for a file called `tailwind.css` in your app's manifest directory (next to Cargo.toml). To customize the file, use the dioxus.toml:
+## Develop
 
-```toml
-[application]
-tailwind_input = "my.css"
-tailwind_output = "assets/out.css" # also customize the location of the out file!
-```
+Initialize the dependency stack after cloning the project:
 
-### Tailwind Manual Install
-
-To use tailwind plugins or manually customize tailwind, you can can install the Tailwind CLI and use it directly.
-
-### Tailwind
-1. Install npm: https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
-2. Install the Tailwind CSS CLI: https://tailwindcss.com/docs/installation/tailwind-cli
-3. Run the following command in the root of the project to start the Tailwind CSS compiler:
-
-```bash
-npx @tailwindcss/cli -i ./input.css -o ./assets/tailwind.css --watch
+```sh
+git submodule update --init --recursive
 ```
 
-### Serving Your App
+Then start the Dioxus asset server:
 
-Run the following command in the root of your project to start developing with the default platform:
-
-```bash
-dx serve
+```sh
+dx serve --platform web
 ```
 
-To run for a different platform, use the `--platform platform` flag. E.g.
-```bash
-dx serve --platform desktop
+## Release bundle
+
+```sh
+dx build --platform web --release --debug-symbols false
 ```
 
+The Cloudflare Pages configuration serves the generated bundle from
+`target/dx/real-blog/release/web/public`.
 
+`dx` 0.7.7 and `wasm-bindgen` 0.2.118 are intentionally pinned together.
+Disabling deployment DWARF is important: Binaryen 129 aborts on the large
+debug-enabled iced/WGPU module, while the command above completes bundling and
+optimization normally.
+
+Do not patch only `iced_winit` to crates.io iced: all iced crates must remain on
+the same revision to avoid incompatible duplicate `iced_core` and
+`iced_program` types.

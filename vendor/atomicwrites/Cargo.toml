@@ -1,0 +1,9 @@
+[package]
+name = "atomicwrites"
+version = "0.4.2"
+edition = "2021"
+license = "MIT"
+description = "WASM-compatible atomicwrites adapter for vendored libcosmic"
+
+[lib]
+path = "src/lib.rs"

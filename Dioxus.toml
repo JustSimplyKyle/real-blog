@@ -4,7 +4,7 @@
 [web.app]
 
 # HTML title tag content
-title = "real-blog"
+title = "Kyle — Rust, NixOS, and hardware"
 
 # include `assets` in web platform
 [web.resource]

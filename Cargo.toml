@@ -2,16 +2,23 @@
 name = "real-blog"
 version = "0.1.0"
 authors = ["kyle <kyle@nixos-desktop>"]
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dioxus = { version = "0.7.1", features = ["router"] }
-dioxus_style = "0.5.3"
+dioxus = { version = "=0.7.7", default-features = false, features = ["web"] }
+libcosmic = { path = "vendor/libcosmic", default-features = false, features = ["web"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+console_error_panic_hook = "0.1"
+console_log = "1"
+web-sys = { version = "0.3", features = ["Window"] }
+wasm-bindgen = "=0.2.118"
+
+[patch."https://github.com/jackpot51/rust-atomicwrites"]
+atomicwrites = { path = "vendor/atomicwrites" }
 
 [features]
 default = ["web"]
-web = ["dioxus/web"]
-desktop = ["dioxus/desktop"]
-mobile = ["dioxus/mobile"]
+web = []
