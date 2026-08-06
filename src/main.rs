@@ -1,3 +1,5 @@
+use std::convert::identity;
+
 use cosmic::iced::alignment::Vertical;
 use cosmic::iced::{self, Alignment, Font, Length, Size, Task};
 use cosmic::{Apply, Core, Element, app, executor, theme, widget};
@@ -6,7 +8,7 @@ const GITHUB: &str = "https://github.com/JustSimplyKyle";
 const MAIMAI: &str = "https://www.tomomai.lol/profile/simplykyle/intl";
 const TETRIO: &str = "https://ch.tetr.io/u/ultimatekyle";
 const HUNINN: Font = Font::with_name("jf-openhuninn-2.1");
-const HUNINN_BYTES: &[u8] = include_bytes!("../assets/fonts/jf-openhuninn-2.1.ttf");
+const HUNINN_ASSET: manganis::Asset = manganis::asset!("/assets/fonts/jf-openhuninn-2.1.ttf");
 
 fn main() -> cosmic::iced::Result {
     #[cfg(target_arch = "wasm32")]
@@ -68,6 +70,28 @@ impl cosmic::Application for BlogApp {
             .insert(|button| button.text("connections").data(Page::Connections))
             .build();
 
+        #[cfg(target_arch = "wasm32")]
+        let fetch_huninn = async {
+            let response = gloo_net::http::Request::get(&HUNINN_ASSET.to_string())
+                .send()
+                .await
+                .map_err(|error| error.to_string())?;
+
+            response.binary().await.map_err(|error| error.to_string())
+        };
+
+        #[cfg(not(target_arch = "wasm32"))]
+        let fetch_huninn =
+            async { std::fs::read(HUNINN_ASSET.resolve()).map_err(|error| error.to_string()) };
+
+        let load_huninn = Task::perform(fetch_huninn, identity).then(|result| match result {
+            Ok(bytes) => cosmic::iced::font::load(bytes).discard(),
+            Err(error) => {
+                eprintln!("failed to load {HUNINN_ASSET}: {error}");
+                Task::none()
+            }
+        });
+
         (
             Self {
                 core,
@@ -75,7 +99,7 @@ impl cosmic::Application for BlogApp {
                 navigation,
                 compact: false,
             },
-            cosmic::iced::font::load(HUNINN_BYTES).discard(),
+            load_huninn,
         )
     }
 

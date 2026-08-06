@@ -9,10 +9,12 @@ edition = "2024"
 [dependencies]
 dioxus = { version = "=0.7.7", default-features = false, features = ["web"] }
 libcosmic = { path = "vendor/libcosmic", default-features = false, features = ["web"] }
+manganis = { version = "0.7.9", features = ["dioxus"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_error_panic_hook = "0.1"
 console_log = "1"
+gloo-net = "0.6"
 web-sys = { version = "0.3", features = ["Window"] }
 wasm-bindgen = "=0.2.118"
 
