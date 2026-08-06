@@ -1,4 +1,5 @@
-use cosmic::iced::{Alignment, Font, Length, Size, Task};
+use cosmic::iced::alignment::Vertical;
+use cosmic::iced::{self, Alignment, Font, Length, Size, Task};
 use cosmic::{Apply, Core, Element, app, executor, theme, widget};
 
 const GITHUB: &str = "https://github.com/JustSimplyKyle";
@@ -32,13 +33,14 @@ enum Page {
 
 #[derive(Clone, Debug)]
 enum Message {
-    Navigate(Page),
+    Navigate(widget::segmented_button::Entity),
     Open(&'static str),
 }
 
 struct BlogApp {
     core: Core,
     page: Page,
+    navigation: widget::segmented_button::SingleSelectModel,
     compact: bool,
 }
 
@@ -60,11 +62,17 @@ impl cosmic::Application for BlogApp {
     fn init(mut core: Core, _flags: ()) -> (Self, Task<cosmic::Action<Message>>) {
         core.window.show_headerbar = false;
         core.window.content_container = false;
+        let navigation = widget::segmented_button::Model::builder()
+            .insert(|button| button.text("home").data(Page::Home).activate())
+            .insert(|button| button.text("blog").data(Page::Blog))
+            .insert(|button| button.text("connections").data(Page::Connections))
+            .build();
 
         (
             Self {
                 core,
                 page: Page::Home,
+                navigation,
                 compact: false,
             },
             cosmic::iced::font::load(HUNINN_BYTES).discard(),
@@ -73,7 +81,12 @@ impl cosmic::Application for BlogApp {
 
     fn update(&mut self, message: Message) -> Task<cosmic::Action<Message>> {
         match message {
-            Message::Navigate(page) => self.page = page,
+            Message::Navigate(id) => {
+                if let Some(page) = self.navigation.data::<Page>(id).copied() {
+                    self.navigation.activate(id);
+                    self.page = page;
+                }
+            }
             Message::Open(url) => open_url(url),
         }
 
@@ -106,23 +119,10 @@ impl cosmic::Application for BlogApp {
 impl BlogApp {
     fn navigation(&self) -> Element<'_, Message> {
         let spacing = theme::spacing();
-        let nav = [
-            (Page::Home, "home"),
-            (Page::Blog, "blog"),
-            (Page::Connections, "connections"),
-        ]
-        .into_iter()
-        .fold(
-            widget::row![].spacing(spacing.space_xxxs),
-            |row, (page, label)| {
-                let button = if self.page == page {
-                    widget::button::suggested(label)
-                } else {
-                    widget::button::text(label)
-                };
-                row.push(button.on_press(Message::Navigate(page)))
-            },
-        );
+        let nav = widget::segmented_control::horizontal(&self.navigation)
+            .width(Length::Shrink)
+            .style(theme::SegmentedButton::NavBar)
+            .on_activate(Message::Navigate);
 
         widget::row![
             widget::text::heading("kyle.")
@@ -140,14 +140,45 @@ impl BlogApp {
 
     fn home(&self) -> Element<'_, Message> {
         let spacing = theme::spacing();
+        let section_title = |label| {
+            widget::row![
+                widget::text::title1(label).class(theme::Text::Accent),
+                widget::divider::horizontal::light(),
+            ]
+            .align_y(Alignment::Center)
+            .spacing(spacing.space_xs)
+            .apply(Element::from)
+        };
+        let about =
+            card(
+                widget::column::with_children(vec![
+                    widget::text::body("I like coding, yeah *flashy news* i read the code. I care about each little minute detail that makes an api good or bad to use.").into(),
+                    widget::text::body("I daily-drive NixOS. The ability of reproducing an entire system gives me joy.").into(),
+                    widget::text::body("I also had a ton of fun dealing with embedded works, espically tinkering with the type system to make certain hardware bugs impossible.").into(),
+                    widget::text::body("Certainlly a bit too Rust-pilled, yk this website is built with libcosmic... somehow").into(),
+                ])
+                .spacing(spacing.space_xs)
+                .into(),
+            );
+        let games =
+            card(
+                widget::column::with_children(vec![
+                    widget::text::body("I spend an unreasonable amount of time playing rhythm games. My main game is maimai & paradigm reboot, but I also play in FALSUS, Phigros, and Arcaea.").into(),
+                    link_button("maimai profile ↗", MAIMAI),
+                    widget::text::body("Away from rhythm games, I am also an avid factorio lover, Slay the Spire 2 enjoyer, or occasionally ~suffering~ in TETR.IO.").into(),
+                    link_button("TETR.IO stats ↗", TETRIO),
+                ])
+                .spacing(spacing.space_xs)
+                .into(),
+            );
 
         widget::column![
             self.hero(),
             self.stats(),
             section_title("about me"),
-            about(),
+            about,
             section_title("games i play"),
-            games(),
+            games,
             section_title("things i love"),
             self.love_grid(),
             section_title("projects"),
@@ -175,6 +206,7 @@ impl BlogApp {
             link_button("github.com/JustSimplyKyle", GITHUB),
         ]
         .spacing(spacing.space_xxs)
+        .align_y(Vertical::Center)
         .wrap();
 
         widget::column![
@@ -183,7 +215,7 @@ impl BlogApp {
             widget::text::body("a taiwanese open source developer and an rhythm game addict"),
             tags,
         ]
-        .spacing(spacing.space_xs)
+        .spacing(spacing.space_s)
         .padding(spacing.space_l)
         .apply(widget::container)
         .class(theme::Container::Primary)
@@ -193,6 +225,17 @@ impl BlogApp {
 
     fn stats(&self) -> Element<'_, Message> {
         let spacing = theme::spacing();
+        let stat = |label, value| {
+            card(
+                widget::column![
+                    widget::text::caption(label),
+                    widget::text::title4(value).class(theme::Text::Accent),
+                ]
+                .spacing(spacing.space_xxxs)
+                .width(Length::Fill)
+                .into(),
+            )
+        };
         let cards = vec![
             stat("Daily Driver", "NixOS"),
             stat("Language of Choice", "Rust"),
@@ -212,18 +255,29 @@ impl BlogApp {
     }
 
     fn love_grid(&self) -> Element<'_, Message> {
+        let spacing = theme::spacing();
+        let love = |name, description| {
+            card(
+                widget::column![
+                    widget::text::title4(name).class(theme::Text::Accent),
+                    widget::text::body(description),
+                ]
+                .spacing(spacing.space_xxs)
+                .into(),
+            )
+        };
         let cards = vec![
             love(
                 "Rust",
-                "Make invalid states unrepresentable. If the types are right, whole categories of bugs cannot happen.",
+                "Make invalid states unrepresentable. If the types are right, it self documents and prevent logic bugs.",
             ),
             love(
                 "Nix · NixOS",
-                "Declarative AND reproducible. THE programmer operating system",
+                "Declarative AND reproducible. THE programmer operating system.",
             ),
             love(
                 "Embedded Systems",
-                "Microcontrollers, PCB layout, and async bare-metal. Still learning, but very fun.",
+                "Microcontrollers, PCB layout, and async bare-metal. Still an absolute beginner tho.",
             ),
             love("Typst", "Modern typesetting at its finest."),
         ];
@@ -232,16 +286,35 @@ impl BlogApp {
     }
 
     fn projects(&self) -> Element<'_, Message> {
+        let spacing = theme::spacing();
+        let project = |title, description, labels: &[&'static str], url| {
+            let tags = labels
+                .iter()
+                .map(|&label| tag(label))
+                .apply(widget::Row::from_iter)
+                .spacing(spacing.space_xxxs)
+                .push(link_button("GitHub ↗", url));
+
+            card(
+                widget::column![
+                    widget::text::title4(title).class(theme::Text::Accent),
+                    widget::text::body(description),
+                    tags.wrap(),
+                ]
+                .spacing(spacing.space_xs)
+                .into(),
+            )
+        };
         let projects = vec![
             project(
                 "RC Car PCB",
-                "Designed a custom ESP32 breakout board to replace a rats-nest of breadboard jumpers. Drives an A4988 stepper and an OLED status display.",
+                "A custom ESP32 breakout board to replace a breadboard jumpers. Drives an A4988 stepper and an OLED status display.",
                 &["hardware", "PCB", "ESP32"],
                 "https://github.com/JustSimplyKyle/rc-car/tree/retest",
             ),
             project(
                 "catbox-cli",
-                "A proper command-line uploader for catbox.moe: concurrent uploads, live progress bars, and clean error handling.",
+                "A proper command-line uploader for catbox.moe: concurrent uploads, live progress bars, and clean error handling through error_set.",
                 &["async", "CLI", "Rust"],
                 "https://github.com/JustSimplyKyle/catbox-cli",
             ),
@@ -253,7 +326,7 @@ impl BlogApp {
             ),
             project(
                 "infi75 keyboard RE",
-                "Captured USB packets, reverse-engineered a vendor lighting protocol, and rebuilt its music-reactive modes for Linux in Rust.",
+                "Captured USB packets, reverse-engineered a vendor lighting protocol, and rebuilt its music-reactive modes for Linux(cava-backed) in Rust.",
                 &["reverse engineering", "USB", "Rust"],
                 "https://github.com/JustSimplyKyle/infi75-custom",
             ),
@@ -318,18 +391,6 @@ impl BlogApp {
     }
 }
 
-fn section_title(label: &'static str) -> Element<'static, Message> {
-    let spacing = theme::spacing();
-
-    widget::row![
-        widget::text::title1(label).class(theme::Text::Accent),
-        widget::divider::horizontal::light(),
-    ]
-    .align_y(Alignment::Center)
-    .spacing(spacing.space_xs)
-    .into()
-}
-
 fn accent_caption(
     label: impl Into<std::borrow::Cow<'static, str>> + 'static,
 ) -> Element<'static, Message> {
@@ -367,88 +428,6 @@ fn card(content: Element<'static, Message>) -> Element<'static, Message> {
         .into()
 }
 
-fn stat(label: &'static str, value: &'static str) -> Element<'static, Message> {
-    let spacing = theme::spacing();
-
-    card(
-        widget::column![
-            widget::text::caption(label),
-            widget::text::title4(value).class(theme::Text::Accent),
-        ]
-        .spacing(spacing.space_xxxs)
-        .width(Length::Fill)
-        .into(),
-    )
-}
-
-fn about() -> Element<'static, Message> {
-    let spacing = theme::spacing();
-
-    card(
-        widget::column::with_children(vec![
-            widget::text::body("I like coding, yeah *flashy news* i read the code. I care about each little minute detail that makes an api good or bad to use.").into(),
-            widget::text::body("I daily-drive NixOS. The ability of reproducing an entire system gives me joy.").into(),
-            widget::text::body("I also had a ton of fun dealing with embedded works, espically tinkering with the type system to make certain hardware bugs impossible.").into(),
-            widget::text::body("Certainlly a bit too Rust-pilled, yk this website is built with libcosmic... somehow").into(),
-        ])
-        .spacing(spacing.space_xs)
-        .into(),
-    )
-}
-
-fn games() -> Element<'static, Message> {
-    let spacing = theme::spacing();
-
-    card(
-        widget::column::with_children(vec![
-            widget::text::body("I spend an unreasonable amount of time playing rhythm games. My main game is maimai & paradigm reboot, but I also play in FALSUS, Phigros, and Arcaea.").into(),
-            link_button("maimai profile ↗", MAIMAI),
-            widget::text::body("Away from rhythm games, I am also an avid factorio lover, Slay the Spire 2 enjoyer, or occasionally ~suffering~ in TETR.IO.").into(),
-            link_button("TETR.IO stats ↗", TETRIO),
-        ])
-        .spacing(spacing.space_xs)
-        .into(),
-    )
-}
-
-fn love(name: &'static str, description: &'static str) -> Element<'static, Message> {
-    let spacing = theme::spacing();
-
-    card(
-        widget::column![
-            widget::text::title4(name).class(theme::Text::Accent),
-            widget::text::body(description),
-        ]
-        .spacing(spacing.space_xxs)
-        .into(),
-    )
-}
-
-fn project(
-    title: &'static str,
-    description: &'static str,
-    tags: &'static [&'static str],
-    url: &'static str,
-) -> Element<'static, Message> {
-    let spacing = theme::spacing();
-    let tags = tags
-        .iter()
-        .fold(widget::row![].spacing(spacing.space_xxxs), |row, label| {
-            row.push(tag(label))
-        });
-
-    card(
-        widget::column![
-            widget::text::title4(title).class(theme::Text::Accent),
-            widget::text::body(description),
-            tags.wrap(),
-            link_button("GitHub ↗", url),
-        ]
-        .spacing(spacing.space_xs)
-        .into(),
-    )
-}
-
 fn responsive_grid(
     cards: Vec<Element<'static, Message>>,
     compact: bool,
@@ -460,25 +439,21 @@ fn responsive_grid(
             .spacing(spacing.space_xs)
             .into()
     } else {
-        let mut rows = widget::column![].spacing(spacing.space_xs);
-        let mut cards = cards.into_iter();
-
-        while let Some(left) = cards.next() {
-            let mut row = widget::row![left]
-                .spacing(spacing.space_xs)
-                .width(Length::Fill);
-
-            if let Some(right) = cards.next() {
-                row = row.push(right);
-            } else {
-                row = row.push(widget::space::horizontal().width(Length::Fill));
-            }
-
-            rows = rows.push(row);
-        }
-
-        rows.width(Length::Fill).into()
+        cards
+            .into_iter()
+            .apply(pairwise)
+            .fold(iced::widget::Grid::new(), |grid, (lhs, rhs)| {
+                grid.push(lhs).push_maybe(rhs)
+            })
+            .columns(2)
+            .height(Length::Shrink)
+            .spacing(spacing.space_xs)
+            .into()
     }
+}
+
+fn pairwise<T>(mut iter: impl Iterator<Item = T>) -> impl Iterator<Item = (T, Option<T>)> {
+    std::iter::from_fn(move || Some((iter.next()?, iter.next())))
 }
 
 fn page_hero(
