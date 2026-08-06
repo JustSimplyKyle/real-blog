@@ -1,3 +1,6 @@
+mod apply_traits;
+
+use apply_traits::ApplyConditional;
 use cosmic::iced::alignment::Vertical;
 use cosmic::iced::{self, Alignment, Font, Length, Size, Task};
 use cosmic::{Apply, Core, Element, app, executor, theme, widget};
@@ -7,6 +10,11 @@ const MAIMAI: &str = "https://www.tomomai.lol/profile/simplykyle/intl";
 const TETRIO: &str = "https://ch.tetr.io/u/ultimatekyle";
 const HUNINN: Font = Font::with_name("jf-openhuninn-2.1");
 const HUNINN_ASSET: manganis::Asset = manganis::asset!("/assets/fonts/jf-openhuninn-2.1.ttf");
+
+#[cfg(all(target_arch = "wasm32", feature = "hot-patch"))]
+fn hot_patch_client() -> dioxus::prelude::Element {
+    dioxus::dioxus_core::VNode::empty()
+}
 
 fn launch(font: Vec<u8>) -> cosmic::iced::Result {
     cosmic::iced::advanced::graphics::text::font_system()
@@ -27,6 +35,29 @@ fn main() {
     {
         console_log::init().expect("initialize browser logging");
         std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+
+        #[cfg(feature = "hot-patch")]
+        {
+            let document = web_sys::window()
+                .expect("browser window")
+                .document()
+                .expect("browser document");
+            let root = document
+                .create_element("div")
+                .expect("create hot-patch root");
+            root.set_attribute("hidden", "")
+                .expect("hide hot-patch root");
+            document
+                .body()
+                .expect("document body")
+                .append_child(&root)
+                .expect("mount hot-patch root");
+
+            dioxus::web::launch::launch_cfg(
+                hot_patch_client,
+                dioxus::web::Config::new().rootelement(root),
+            );
+        }
 
         wasm_bindgen_futures::spawn_local(async {
             let response = gloo_net::http::Request::get(&HUNINN_ASSET.to_string())
@@ -181,7 +212,7 @@ impl BlogApp {
                     widget::text::body("I also had a ton of fun dealing with embedded works, espically tinkering with the type system to make certain hardware bugs impossible.").into(),
                     widget::text::body("Certainlly a bit too Rust-pilled, yk this website is built with libcosmic... somehow").into(),
                 ])
-                .spacing(spacing.space_xs)
+                .spacing(spacing.space_s)
                 .into(),
             );
         let games =
@@ -266,16 +297,7 @@ impl BlogApp {
             stat("Projects", "GitHub →"),
         ];
 
-        if self.compact {
-            widget::column::with_children(cards)
-                .spacing(spacing.space_xs)
-                .into()
-        } else {
-            widget::row::with_children(cards)
-                .spacing(spacing.space_xs)
-                .width(Length::Fill)
-                .into()
-        }
+        responsive_grid(cards, 3, self.compact)
     }
 
     fn love_grid(&self) -> Element<'_, Message> {
@@ -306,7 +328,7 @@ impl BlogApp {
             love("Typst", "Modern typesetting at its finest."),
         ];
 
-        responsive_grid(cards, self.compact)
+        responsive_grid(cards, 2, self.compact)
     }
 
     fn projects(&self) -> Element<'_, Message> {
@@ -369,7 +391,7 @@ impl BlogApp {
             ),
         ];
 
-        responsive_grid(projects, self.compact)
+        responsive_grid(projects, 2, self.compact)
     }
 
     fn blog(&self) -> Element<'_, Message> {
@@ -455,26 +477,22 @@ fn card(content: Element<'static, Message>) -> Element<'static, Message> {
 
 fn responsive_grid(
     cards: Vec<Element<'static, Message>>,
+    column: usize,
     compact: bool,
 ) -> Element<'static, Message> {
     let spacing = theme::spacing();
 
-    if compact {
-        widget::column::with_children(cards)
-            .spacing(spacing.space_xs)
-            .into()
-    } else {
-        cards
-            .into_iter()
-            .apply(pairwise)
-            .fold(iced::widget::Grid::new(), |grid, (lhs, rhs)| {
-                grid.push(lhs).push_maybe(rhs)
-            })
-            .columns(2)
-            .height(Length::Shrink)
-            .spacing(spacing.space_xs)
-            .into()
-    }
+    cards
+        .into_iter()
+        .apply(pairwise)
+        .fold(iced::widget::Grid::new(), |grid, (lhs, rhs)| {
+            grid.push(lhs).push_maybe(rhs)
+        })
+        .columns(column)
+        .apply_if_some(compact.then_some(1), iced::widget::Grid::columns)
+        .height(Length::Shrink)
+        .spacing(spacing.space_xs)
+        .into()
 }
 
 fn pairwise<T>(mut iter: impl Iterator<Item = T>) -> impl Iterator<Item = (T, Option<T>)> {
@@ -493,7 +511,7 @@ fn page_hero(
         widget::text::title1(title),
         widget::text::body(subtitle),
     ]
-    .spacing(spacing.space_xxxs)
+    .spacing(spacing.space_s)
     .padding(spacing.space_l)
     .apply(widget::container)
     .class(theme::Container::Primary)

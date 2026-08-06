@@ -1,6 +1,9 @@
 clean:
     rm -rf -- target/dx/real-blog/release/web/public
 
+dev:
+    dx serve --hot-patch --features hot-patch
+
 bundle: clean
     dx bundle -r --debug-symbols false
 
