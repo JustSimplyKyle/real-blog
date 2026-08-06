@@ -317,6 +317,7 @@ impl BlogApp {
                 .map(|&label| tag(label))
                 .apply(widget::Row::from_iter)
                 .spacing(spacing.space_xxxs)
+                .align_y(Vertical::Center)
                 .push(link_button("GitHub ↗", url));
 
             card(
