@@ -11,11 +11,6 @@ const TETRIO: &str = "https://ch.tetr.io/u/ultimatekyle";
 const HUNINN: Font = Font::with_name("jf-openhuninn-2.1");
 const HUNINN_ASSET: manganis::Asset = manganis::asset!("/assets/fonts/jf-openhuninn-2.1.ttf");
 
-#[cfg(all(target_arch = "wasm32", feature = "hot-patch"))]
-fn hot_patch_client() -> dioxus::prelude::Element {
-    dioxus::dioxus_core::VNode::empty()
-}
-
 fn launch(font: Vec<u8>) -> cosmic::iced::Result {
     cosmic::iced::advanced::graphics::text::font_system()
         .write()
@@ -35,29 +30,6 @@ fn main() {
     {
         console_log::init().expect("initialize browser logging");
         std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-
-        #[cfg(feature = "hot-patch")]
-        {
-            let document = web_sys::window()
-                .expect("browser window")
-                .document()
-                .expect("browser document");
-            let root = document
-                .create_element("div")
-                .expect("create hot-patch root");
-            root.set_attribute("hidden", "")
-                .expect("hide hot-patch root");
-            document
-                .body()
-                .expect("document body")
-                .append_child(&root)
-                .expect("mount hot-patch root");
-
-            dioxus::web::launch::launch_cfg(
-                hot_patch_client,
-                dioxus::web::Config::new().rootelement(root),
-            );
-        }
 
         wasm_bindgen_futures::spawn_local(async {
             let response = gloo_net::http::Request::get(&HUNINN_ASSET.to_string())
@@ -181,6 +153,7 @@ impl BlogApp {
 
         widget::row![
             widget::text::heading("kyle.")
+                .selectable()
                 .class(theme::Text::Accent)
                 .width(Length::Fill),
             nav,
@@ -197,7 +170,9 @@ impl BlogApp {
         let spacing = theme::spacing();
         let section_title = |label| {
             widget::row![
-                widget::text::title1(label).class(theme::Text::Accent),
+                widget::text::title1(label)
+                    .selectable()
+                    .class(theme::Text::Accent),
                 widget::divider::horizontal::light(),
             ]
             .align_y(Alignment::Center)
@@ -207,10 +182,10 @@ impl BlogApp {
         let about =
             card(
                 widget::column::with_children(vec![
-                    widget::text::body("I like coding, yeah *flashy news* i read the code. I care about each little minute detail that makes an api good or bad to use.").into(),
-                    widget::text::body("I daily-drive NixOS. The ability of reproducing an entire system gives me joy.").into(),
-                    widget::text::body("I also had a ton of fun dealing with embedded works, espically tinkering with the type system to make certain hardware bugs impossible.").into(),
-                    widget::text::body("Certainlly a bit too Rust-pilled, yk this website is built with libcosmic... somehow").into(),
+                    widget::text::body("I like coding, yeah *flashy news* i read the code. I care about each little minute detail that makes an api good or bad to use.").selectable().into(),
+                    widget::text::body("I daily-drive NixOS. The ability of reproducing an entire system gives me joy.").selectable().into(),
+                    widget::text::body("I also had a ton of fun dealing with embedded works, espically tinkering with the type system to make certain hardware bugs impossible.").selectable().into(),
+                    widget::text::body("Certainlly a bit too Rust-pilled, yk this website is built with libcosmic... somehow").selectable().into(),
                 ])
                 .spacing(spacing.space_s)
                 .into(),
@@ -218,9 +193,9 @@ impl BlogApp {
         let games =
             card(
                 widget::column::with_children(vec![
-                    widget::text::body("I spend an unreasonable amount of time playing rhythm games. My main game is maimai & paradigm reboot, but I also play in FALSUS, Phigros, and Arcaea.").into(),
+                    widget::text::body("I spend an unreasonable amount of time playing rhythm games. My main game is maimai & paradigm reboot, but I also play in FALSUS, Phigros, and Arcaea.").selectable().into(),
                     link_button("maimai profile ↗", MAIMAI),
-                    widget::text::body("Away from rhythm games, I am also an avid factorio lover, Slay the Spire 2 enjoyer, or occasionally ~suffering~ in TETR.IO.").into(),
+                    widget::text::body("Away from rhythm games, I am also an avid factorio lover, Slay the Spire 2 enjoyer, or occasionally ~suffering~ in TETR.IO.").selectable().into(),
                     link_button("TETR.IO stats ↗", TETRIO),
                 ])
                 .spacing(spacing.space_xs)
@@ -266,8 +241,9 @@ impl BlogApp {
 
         widget::column![
             accent_caption("hiii I'm"),
-            widget::text::title1("Kyle"),
-            widget::text::body("a taiwanese open source developer and an rhythm game addict"),
+            widget::text::title1("Kyle").selectable(),
+            widget::text::body("a taiwanese open source developer and an rhythm game addict")
+                .selectable(),
             tags,
         ]
         .spacing(spacing.space_s)
@@ -283,8 +259,10 @@ impl BlogApp {
         let stat = |label, value| {
             card(
                 widget::column![
-                    widget::text::caption(label),
-                    widget::text::title4(value).class(theme::Text::Accent),
+                    widget::text::caption(label).selectable(),
+                    widget::text::title4(value)
+                        .selectable()
+                        .class(theme::Text::Accent),
                 ]
                 .spacing(spacing.space_xxxs)
                 .width(Length::Fill)
@@ -305,8 +283,10 @@ impl BlogApp {
         let love = |name, description| {
             card(
                 widget::column![
-                    widget::text::title4(name).class(theme::Text::Accent),
-                    widget::text::body(description),
+                    widget::text::title4(name)
+                        .selectable()
+                        .class(theme::Text::Accent),
+                    widget::text::body(description).selectable(),
                 ]
                 .spacing(spacing.space_xxs)
                 .into(),
@@ -344,8 +324,10 @@ impl BlogApp {
 
             card(
                 widget::column![
-                    widget::text::title4(title).class(theme::Text::Accent),
-                    widget::text::body(description),
+                    widget::text::title4(title)
+                        .selectable()
+                        .class(theme::Text::Accent),
+                    widget::text::body(description).selectable(),
                     tags.wrap(),
                 ]
                 .spacing(spacing.space_xs)
@@ -401,10 +383,10 @@ impl BlogApp {
             page_hero("writing", "blog", "thoughts, projects, anything really"),
             card(
                 widget::column![
-                    widget::text::body("Nothing here yet."),
+                    widget::text::body("Nothing here yet.").selectable(),
                     widget::text::heading(
                         "Posts are *probably* going to be written in Typst and rendered using typst.ts.",
-                    )
+                    ).selectable()
                     .class(theme::Text::Accent),
                 ]
                 .spacing(spacing.space_xxs)
@@ -421,11 +403,14 @@ impl BlogApp {
             card(
                 widget::row![
                     widget::text::title2("淳")
+                        .selectable()
                         .class(theme::Text::Accent)
                         .width(Length::Shrink),
                     widget::column![
-                        widget::text::heading("淳"),
-                        widget::text::body("群除我佬，我是肺霧").font(HUNINN),
+                        widget::text::heading("淳").selectable(),
+                        widget::text::body("群除我佬，我是肺霧")
+                            .selectable()
+                            .font(HUNINN),
                     ]
                     .width(Length::Fill),
                     link_button("visit ↗", "https://chuen666666.github.io/"),
@@ -442,6 +427,7 @@ fn accent_caption(
     label: impl Into<std::borrow::Cow<'static, str>> + 'static,
 ) -> Element<'static, Message> {
     widget::text::caption_heading(label)
+        .selectable()
         .class(theme::Text::Accent)
         .into()
 }
@@ -450,6 +436,7 @@ fn tag(label: &'static str) -> Element<'static, Message> {
     let spacing = theme::spacing();
 
     widget::text::caption_heading(label)
+        .selectable()
         .class(theme::Text::Accent)
         .apply(widget::container)
         .padding([spacing.space_xxxs, spacing.space_xxs])
@@ -508,8 +495,8 @@ fn page_hero(
 
     widget::column![
         accent_caption(eyebrow),
-        widget::text::title1(title),
-        widget::text::body(subtitle),
+        widget::text::title1(title).selectable(),
+        widget::text::body(subtitle).selectable(),
     ]
     .spacing(spacing.space_s)
     .padding(spacing.space_l)
